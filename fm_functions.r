@@ -244,5 +244,125 @@ create_fights_view<-function(x){
 }
 
 
+append_dk<-function(x,y){
+  hldrow<-NULL;hld<-NULL;
+  for(i in seq(1,length(x[,1]),1)){
+    name<-as.character(x[i,1])
+    for(k in seq(1,length(y[,1]),1)){
+      if(as.character(y[k,2])==name){
+        salary<-as.character(y[k,3])
+        id<-as.character(y[k,1])
+      }
+    } 
+    hldrow<-cbind(x[i,], id, salary)
+    hld<-rbind(hld,hldrow)
+  }  
+  return(hld)
+}
+
+
+
+
+
+fix_odds_names<-function(x){
+  hr<-NULL;hld<-NULL
+  for(i in seq(1,length(x[,1]),1)){
+    if (x[i,1] == "LUIS HENRIQUE DA SILVA"){hr <- cbind("HENRIQUE DA SILVA", x[i,2])}
+    else if (x[i,1] == "JOSH BURKMAN"){hr <- cbind("JOSHUA BURKMAN", x[i,2])}
+    ###ADD MORE AS FOUND (WILL SHOW WARNINGS IF FAILS)###
+    else {hr<-x[i,]}
+    colnames(hr)<-colnames(x)
+    hld<-rbind(hld,hr)
+  }
+  return(hld)
+}
+
+
+
+
+get_all_lineups<-function(x){
+  #ALL POSSIBLE COMBOS GIVEN ENTRY
+  #SUMS PROJECTION AND SALARY (FROM ENTRY)
+  hld<-combn(x[,1],6)
+  hld<-as.data.frame(hld)
+  hldrow1<-NULL;hldrow2<-NULL;
+  for(i in seq(1,length(colnames(hld)),1)){
+    score<-0
+    salary<-0
+    for(j in seq(1,length(hld[,1]),1)){
+      name <- hld[j,i]
+      for(k in seq(1,length(x[,1]),1)){
+        if(as.character(x[k,1]) == as.character(name)){
+          score<-score + as.numeric(as.character(x[k,2]))
+          salary<-salary + as.numeric(as.character(x[k,3]))
+        }
+      }
+    }
+    hldrow1<-cbind(hldrow1,as.character(score));hldrow2<-cbind(hldrow2,as.character(salary))
+  }
+  colnames(hldrow1)<-colnames(hld);colnames(hldrow2)<-colnames(hld)
+  hld<-rbind(hld,hldrow1,hldrow2)
+  #SALARY CAP CUT
+  hldf<-NULL
+  for(i in seq(1,length(colnames(hld)),1)){
+    if(as.numeric(as.character(hld[8,i])) <= 50000){
+      if(is.null(hldf)==TRUE){
+        hldf<-as.vector(hld[,i])
+      } else {
+        hldf<-cbind(hldf, as.vector(hld[,i]))
+      }
+    }
+  }
+  return(hldf)
+}
+
+
+append_dk_salary<-function(x,y){
+  hldrow<-NULL;hld<-NULL;
+  for(i in seq(1,length(x[,1]),1)){
+    name<-as.character(x[i,1])
+    for(k in seq(1,length(y[,1]),1)){
+      if(as.character(y[k,2])==name){
+        salary<-as.character(y[k,4])
+      }
+    } 
+    hldrow<-cbind(x[i,], salary)
+    hld<-rbind(hld,hldrow)
+  }  
+  return(hld)
+}
+
+
+
+format_to_dk<-function(x,y){
+  hld<-NULL
+  for(i in seq(1,length(x[1,]),1)){
+    hldrow<-c(x[1,i],x[2,i],x[3,i],x[4,i],x[5,i],x[6,i])
+    hld<-rbind(hld,hldrow)
+  }
+  dklus<-NULL;hr<-NULL;
+  for(k in seq(1,length(hld[,1]),1)){
+    for(i in seq(1,length(hld[1,]),1)){
+      name<-as.character(hld[k,i])
+      for(j in seq(1,length(y[,1]),1)){
+        if(as.character(y[j,2])==name){
+          if(is.null(hr)==FALSE){hr<-cbind(hr, as.character(y[j,1]))}
+          else {hr<-as.character(y[j,1]);}
+        }
+      }
+    }
+    dklus<-rbind(dklus,hr)
+    hr<-NULL
+  }
+  colnames(dklus)<-c("F","F","F","F","F","F")
+  rownames(dklus)<-c(seq(1,length(dklus[,1]),1))
+  return(dklus)
+}
+
+
+
+
+
+
 
 

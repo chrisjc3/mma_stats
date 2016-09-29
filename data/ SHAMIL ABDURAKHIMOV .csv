@@ -1,5 +1,5 @@
-"wincol","name","strikes","takedowns","subattempts","pospass","weightclass","result","round","time","score"
-"1","SHAMIL ABDURAKHIMOV","62","0","0","0","Heavyweight","U-DEC","3","5:00","56"
-"0","ANTHONY HAMILTON","40","0","0","0","Heavyweight","U-DEC","3","5:00","20"
-"0","SHAMIL ABDURAKHIMOV","9","0","0","0","Heavyweight","KO/TKO","1","4:57","4.5"
-"1","TIM JOHNSON","22","1","0","2","Heavyweight","KO/TKO","1","4:57","113"
+wincol,name,strikes,takedowns,subattempts,pospass,weightclass,result,round,time,score
+1,SHAMIL ABDURAKHIMOV,62,0,0,0,Heavyweight,U-DEC,3,5:00,56
+0,ANTHONY HAMILTON,40,0,0,0,Heavyweight,U-DEC,3,5:00,20
+0,SHAMIL ABDURAKHIMOV,9,0,0,0,Heavyweight,KO/TKO,1,4:57,4.5
+1,TIM JOHNSON,22,1,0,2,Heavyweight,KO/TKO,1,4:57,113

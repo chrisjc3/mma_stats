@@ -3,6 +3,7 @@
 ############################################################
 library("rvest")
 library("stringr")
+require("combinat")
 source("fm_functions.r")
 local_path<-"C:\\git\\fightmetrics\\data\\"
 
@@ -56,57 +57,103 @@ local_path<-"C:\\git\\fightmetrics\\data\\"
 # write.csv(odds, file=paste(local_path,"odds",".csv"), row.names=FALSE)
 
 
+# 
+# #################################################################################
+# ###########################     TO LOAD     #####################################
+# #################################################################################
+# up_events <- read.csv(file=paste(local_path,"up_events",".csv"), header=TRUE, sep=",")
+# dn_events <- read.csv(file=paste(local_path,"dn_events",".csv"), header=TRUE, sep=",")
+# fighter_table <- read.csv(file=paste(local_path,"master_fighter_table",".csv"), header=TRUE, sep=",")
+# card <- read.csv(file=paste(local_path,"up_card",".csv"), header=TRUE, sep=",")
+# odds <- read.csv(file=paste(local_path,"odds",".csv"), header=TRUE, sep=",")
+# #path <- fighter name or card[]
+# #fighter <- read.csv(file=paste(local_path,path,".csv"), header=TRUE, sep=",")
+# 
+# 
+# #################################################################################
+# ###########################     MANIPULATION     ################################
+# #################################################################################
+# 
+# #http://www.gamblerspalace.com/lines/martial-arts/ -> fightmetrics 
+# #IF ERRORS FIRE ADD N/A NAMING CONVERSION TO FUNCTION
+# odds <- read.csv(file=paste(local_path,"odds",".csv"), header=TRUE, sep=",")
+# odds<-fix_odds_names(odds)
+# 
+# #merge odds to upcoming card & add stats 
+# up_card<-merge(card, odds, by.x="name", by.y="name", all.x=TRUE)
+# up_card<-get_fights_sums(up_card)
+# #set up for side b side
+# up_card[c("against")] <- lapply(up_card[c("against")], toupper)
+# 
+# #################################################################################
+# ############     INSERT DRAFT KINGS SALARIES     ################################
+# #################################################################################
+# 
+# salaries <- read.csv(file=paste0(local_path,"DKSalaries",".csv"), header=TRUE, sep=",")
+# salaries <-salaries[,2:3]
+# salaries[,1] <-toupper(salaries[,1])
+# up_card<-append_dk_salary(up_card,salaries)
+# 
+# #make export/import card#
+# sbs_up_card<-create_fights_view(up_card)
+# sbs_up_card<-cbind(sbs_up_card, "", "")
+# colnames(sbs_up_card)<-c(colnames(sbs_up_card[1:14]),"pool","proj")
+# 
+# #up_card = vertical data 
+# #sbs_up_card = horizontal data
+# #################################################################################
+# ###########################     OUTPUT FORM     #################################
+# #################################################################################
+# write.csv(sbs_up_card, file=paste(local_path,"output\\card_form",".csv"), row.names=FALSE)
+
 
 #################################################################################
-###########################     TO LOAD     #####################################
-#################################################################################
-up_events <- read.csv(file=paste(local_path,"up_events",".csv"), header=TRUE, sep=",")
-dn_events <- read.csv(file=paste(local_path,"dn_events",".csv"), header=TRUE, sep=",")
-fighter_table <- read.csv(file=paste(local_path,"master_fighter_table",".csv"), header=TRUE, sep=",")
-card <- read.csv(file=paste(local_path,"up_card",".csv"), header=TRUE, sep=",")
-odds <- read.csv(file=paste(local_path,"odds",".csv"), header=TRUE, sep=",")
-#path <- fighter name or card[]
-#fighter <- read.csv(file=paste(local_path,path,".csv"), header=TRUE, sep=",")
-
-
-#################################################################################
-###########################     MANIPULATION     ################################
+###########################         INPUT FORMS             #####################
+########################### 1) card_form.csv w/ POOL entry  #####################
+########################### 2) draftkings salary info       #####################
+########################### 3) projections really do nothing...it's MMA anyway ##
 #################################################################################
 
-#http://www.gamblerspalace.com/lines/martial-arts/ -> fightmetrics 
-#namings differ...if no odds then check line naming differences
-for(i in seq(1,length(odds[,1]),1)){
-  if (odds[i,1] == "LUIS HENRIQUE DA SILVA"){odds[i,1] <- "HENRIQUE DA SILVA"}
-  if (odds[i,1] == "JOSH BURKMAN"){odds[i,1] <- "JOSHUA BURKMAN"}
+pool_entry <- read.csv(file=paste0(local_path,"output\\card_form ",".csv"), header=TRUE, sep=",")
+pool_entry <- pool_entry[,15:16] 
+pool_entry <- pool_entry[complete.cases(pool_entry),]
+
+salaries <- read.csv(file=paste0(local_path,"output\\DKSalaries",".csv"), header=TRUE, sep=",")
+salaries <-salaries[,1:4]
+salaries[salaries==""]<-NA
+salaries <-salaries[complete.cases(salaries),]
+salaries[,2] <-toupper(salaries[,2])
+
+pool_f<-append_dk_salary(pool_entry,salaries)
+total_combos<-get_all_lineups(pool_f)
+
+ids <- read.csv(file=paste0(local_path,"output\\DKSalaries",".csv"), header=TRUE, sep=",")
+ids <-ids[,1:2]
+ids[ids==""]<-NA
+ids <-ids[complete.cases(ids),]
+ids[,2] <-toupper(ids[,2])
+
+dk_lineups<-format_to_dk(total_combos, ids)
+
+#####################################################
+##################  WRITE OUTPUT  ###################
+#####################################################
+lu_check<-tryCatch({
+  read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=",")
+}, warning = function(w){lu_check<-NULL})
+if(is.null(lu_check)==TRUE){
+  write.csv(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), row.names=FALSE)
+} else{
+  write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE, append=TRUE)
+  
 }
-#merge odds to upcoming card & add stats 
-up_card<-merge(card, odds, by.x="name", by.y="name", all.x=TRUE)
-up_card<-get_fights_sums(up_card)
-#set up for side b side
-up_card[c("against")] <- lapply(up_card[c("against")], toupper)
-sbs_up_card<-create_fights_view(up_card)
-#up_card = vertical data 
-#sbs_up_card = horizontal data
 
-
-#######IMPORT DRAFT KINGS SALARIES
-#######DEFINE VALUES
-#######MAKE LINEUP OPTIMIZER (BET THERE ARE GOOD EXAMPLES ON GITHUB)
-
-#Tips from Github
-  #optional
-# cut weak players off the bat -- salary ge other salary w/ points ge on lesser salary
-# add intake from sbs_up_card for fighter pool/settings
-  #mandatory
-# generate all combos under a salary cap
-# cut to highest predicted points
-
-
-
-
-
-
-
+# ####################################################################################
+# #FAKE SALARIES :: JUST IN CASE!
+# fake_sal <- read.csv(file=paste(local_path,"card_form",".csv"), header=TRUE, sep=",")
+# fake_sal <- fake_sal[,15]
+# fake_sal <- fake_sal[complete.cases(fake_sal)]
+# pool_entry<-cbind(pool_entry,fake_sal)
 
 
 
