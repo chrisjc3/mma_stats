@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475191855167.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "E191A481",
+    "lastKnownWriteTime" : 30399714103066735,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "c6asnvko5f",
+        "caption" : "hldfinal",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=hldfinal&cache_key=c6asnvko5f",
+        "displayedObservations" : "28",
+        "environment" : "",
+        "object" : "hldfinal",
+        "totalObservations" : "28",
+        "variables" : "6"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}

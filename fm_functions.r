@@ -397,3 +397,84 @@ get_all_lineups<-function(x){
 
 
 
+
+
+get_all_lineups_v2<-function(x){
+  
+  #ALL POSSIBLE COMBOS GIVEN ENTRY
+  #SUMS PROJECTION AND SALARY (FROM ENTRY)
+  hld<-combn(x[,1],6)
+  hld<-as.data.frame(hld)
+  hldrow1<-NULL;hldrow2<-NULL;
+  for(i in seq(1,length(colnames(hld)),1)){
+    score<-0
+    salary<-0
+    for(j in seq(1,length(hld[,1]),1)){
+      name <- hld[j,i]
+      for(k in seq(1,length(x[,1]),1)){
+        if(as.character(x[k,1]) == as.character(name)){
+          score<-score + as.numeric(as.character(x[k,2]))
+          salary<-salary + as.numeric(as.character(x[k,3]))
+        }
+      }
+    }
+    hldrow1<-cbind(hldrow1,as.character(score));hldrow2<-cbind(hldrow2,as.character(salary))
+  }
+  colnames(hldrow1)<-colnames(hld);colnames(hldrow2)<-colnames(hld)
+  hld<-rbind(hld,hldrow1,hldrow2)
+  
+  
+  #CUTTING OVER L/U LIMIT / UNDER MEAN POINT VALUE
+  hldf<-NULL
+  for(i in seq(1,length(colnames(hld)),1)){
+    if(as.numeric(as.character(hld[8,i])) <= 50000 & as.numeric(as.character(hld[8,i])) >= 47000){
+      if(is.null(hldf)==TRUE){
+        hldf<-as.vector(hld[,i])
+      } else {
+        hldf<-cbind(hldf, as.vector(hld[,i]))
+      }
+    }
+  }
+  
+  #CREATE POINT CUT OFF
+  cutoff<-as.matrix(hldf[7,])
+  cutoff<-summary(as.numeric(cutoff))
+  cutoff<-cutoff[c("3rd Qu.")]
+  
+  hldb<-NULL
+  for(i in seq(1,length(colnames(hldf)),1)){
+    if(as.numeric(as.character(hldf[7,i])) >= as.numeric(cutoff)){
+      if(is.null(hldb)==TRUE){
+        hldb<-as.vector(hldf[,i])
+      } else {
+        hldb<-cbind(hldb, as.vector(hldf[,i]))
+      }
+    }
+  }  
+  
+  #loop again in case identical but out of order...
+  skip<-FALSE;hldfinal<-NULL;
+  for(i in seq(1,length(hldb[1,]),1)){
+    for(j in seq(1,length(hldb[1,]),1)){
+      skip<-compareEqual(as.matrix(hldb[1:8,i]),as.matrix(hldb[1:8,j]),ignoreDimOrder=TRUE)
+    } 
+    if(!isTRUE(skip)){
+      if(is.null(hldfinal)==TRUE){
+        hldfinal<-as.vector(hldb[,i])
+      }else{
+        hldfinal<-cbind(hldfinal,as.vector(hldb[,i]))
+      }
+    }
+    skip<-FALSE
+  }
+  
+  return(hldfinal)
+}
+
+
+
+
+
+
+
+
