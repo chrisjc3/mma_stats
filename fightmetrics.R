@@ -148,70 +148,12 @@ lu_check<-tryCatch({
 if(is.null(lu_check)==TRUE){
   write.csv(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), row.names=FALSE)
 } else{
+  #WriteAppend/De-Dupe/Write#
   write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE, append=TRUE)
   luc<-read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=",")
-
-  
-  
-  
-  
-  
-
-  
-check_diff_ooo_by_dim<-function(x){
-  
-  
-  
-  x<-luc
-  
-  skip<-FALSE;hldfinal<-NULL;
-    for(i in seq(1,length(as.character(x[,1])),1)){
-      for(j in seq(1,length(as.character(x[,1])),1)){
-        skip<-compareEqual(x[i,1:5],x[j,1:5],ignoreDimOrder=TRUE)
-        if(!isTRUE(skip)){
-          if(is.null(hldfinal)==TRUE){
-            hldfinal<-x[i,]
-            break
-          }else{
-            hldfinal<-rbind(hldfinal,x[i,])
-            break
-          }
-        }
-      } 
-      skip<-FALSE
-    }
-  
-  
-  
-  
-  return(hldfinal)
-}
-  
-  test<-check_diff_ooo_by_dim(luc)
-  
-  length(as.character(luc[,1]))  
-  length(as.character(test[,1]))  
-  
-  
-  
-  
+  luc<-check_diff_ooo_by_dim(luc)
   write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # ####################################################################################
 # #FAKE SALARIES :: JUST IN CASE!

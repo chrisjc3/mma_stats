@@ -476,5 +476,25 @@ get_all_lineups_v2<-function(x){
 
 
 
+check_diff_ooo_by_dim<-function(x){
+  skip<-FALSE;hldfinal<-NULL;
+  for(i in seq(1,length(as.character(x[,1])),1)){
+    for(j in i+1:length(as.character(x[,1]))){
+      if(!isTRUE(skip)){
+        skip<-compareIgnoreAttrs(x[i,1:5],x[j,1:5])
+      }
+    }
+    if(!isTRUE(skip)){
+      if(is.null(hldfinal)==TRUE){
+        hldfinal<-x[i,]
+      }else{
+        hldfinal<-rbind(hldfinal,x[i,])
+      }
+    }
+    skip<-FALSE
+  }
+  return(hldfinal)
+}
+
 
 

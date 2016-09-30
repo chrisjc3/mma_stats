@@ -10,13 +10,13 @@
     "path" : null,
     "project_path" : null,
     "properties" : {
-        "cacheKey" : "h5w65zz43g",
+        "cacheKey" : "ovyhtn0trm",
         "caption" : "luc",
-        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=luc&cache_key=h5w65zz43g",
-        "displayedObservations" : "73",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=luc&cache_key=ovyhtn0trm",
+        "displayedObservations" : "172",
         "environment" : "",
         "object" : "luc",
-        "totalObservations" : "73",
+        "totalObservations" : "172",
         "variables" : "6"
     },
     "relative_order" : 4,
