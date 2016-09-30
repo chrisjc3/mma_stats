@@ -297,10 +297,11 @@ append_dk_salary<-function(x,y){
 
 
 
+
 format_to_dk<-function(x,y){
   hld<-NULL
   for(i in seq(1,length(x[1,]),1)){
-    hldrow<-c(x[1,i],x[2,i],x[3,i],x[4,i],x[5,i],x[6,i])
+    hldrow<-c(x[1,i],x[2,i],x[3,i],x[4,i],x[5,i],x[6,i],x[7,i])
     hld<-rbind(hld,hldrow)
   }
   dklus<-NULL;hr<-NULL;
@@ -314,13 +315,15 @@ format_to_dk<-function(x,y){
         }
       }
     }
+    hr<-cbind(hr,as.character(hld[k,7]))
     dklus<-rbind(dklus,hr)
     hr<-NULL
   }
-  colnames(dklus)<-c("F","F","F","F","F","F")
+  colnames(dklus)<-c("F","F","F","F","F","F","pro")
   rownames(dklus)<-c(seq(1,length(dklus[,1]),1))
   return(dklus)
 }
+
 
 
 
@@ -473,6 +476,47 @@ get_all_lineups_v2<-function(x){
 
 
 
+
+get_all_lineups_v3<-function(x){
+  
+  #ALL POSSIBLE COMBOS GIVEN ENTRY
+  #SUMS PROJECTION AND SALARY (FROM ENTRY)
+  hld<-combn(x[,1],6)
+  hld<-as.data.frame(hld)
+  hldrow1<-NULL;hldrow2<-NULL;
+  for(i in seq(1,length(colnames(hld)),1)){
+    score<-0
+    salary<-0
+    for(j in seq(1,length(hld[,1]),1)){
+      name <- hld[j,i]
+      for(k in seq(1,length(x[,1]),1)){
+        if(as.character(x[k,1]) == as.character(name)){
+          score<-score + as.numeric(as.character(x[k,2]))
+          salary<-salary + as.numeric(as.character(x[k,3]))
+        }
+      }
+    }
+    hldrow1<-cbind(hldrow1,as.character(score));hldrow2<-cbind(hldrow2,as.character(salary))
+  }
+  colnames(hldrow1)<-colnames(hld);colnames(hldrow2)<-colnames(hld)
+  hld<-rbind(hld,hldrow1,hldrow2)
+  
+  
+  #CUTTING OVER L/U LIMIT / UNDER MEAN POINT VALUE
+  hldf<-NULL
+  for(i in seq(1,length(colnames(hld)),1)){
+    if(as.numeric(as.character(hld[8,i])) <= 50000 & as.numeric(as.character(hld[8,i])) >= 47000){
+      if(is.null(hldf)==TRUE){
+        hldf<-as.vector(hld[,i])
+      } else {
+        hldf<-cbind(hldf, as.vector(hld[,i]))
+      }
+    }
+  }
+  
+  
+  return(hldf)
+}
 
 
 

@@ -1,12 +1,12 @@
-############################################################
-##############      UTILITIES     ##########################
-############################################################
-library("rvest")
-library("stringr")
-require("combinat")
-require("compare")
+# ############################################################
+# ##############      UTILITIES     ##########################
+# ############################################################
+# library("rvest")
+# library("stringr")
+# require("combinat")
+# require("compare")
 source("fm_functions.r")
-local_path<-"C:\\git\\fightmetrics\\data\\"
+# local_path<-"C:\\git\\fightmetrics\\data\\"
 
 ################################################################################
 ##########################     TO REFRESH      #################################
@@ -115,6 +115,11 @@ local_path<-"C:\\git\\fightmetrics\\data\\"
 ########################### 3) projections = manually input confidence value   ##
 #################################################################################
 
+
+###########################################################################
+########MAKE THIS ALL A FUNCTION TO RUN IN A LOOP ON A CARD FOLDER#########
+#################       BELOW                                 #############
+###########################################################################
 pool_entry <- read.csv(file=paste0(local_path,"output\\card_form ",".csv"), header=TRUE, sep=",")
 pool_entry <- pool_entry[,15:16] 
 pool_entry <- pool_entry[complete.cases(pool_entry),]
@@ -127,7 +132,7 @@ salaries[,2] <-toupper(salaries[,2])
 
 pool_f<-append_dk_salary(pool_entry,salaries)
 
-total_combos<-get_all_lineups_v2(pool_f) #STILL NEEDS TO BE SMARTER
+total_combos<-get_all_lineups_v3(pool_f) #STILL NEEDS TO BE SMARTER
 # -> Should take full pool and automatically not place dual combatants
 
 ids <- read.csv(file=paste0(local_path,"output\\DKSalaries",".csv"), header=TRUE, sep=",")
@@ -152,24 +157,21 @@ if(is.null(lu_check)==TRUE){
   write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE, append=TRUE)
   luc<-read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=",")
   luc<-check_diff_ooo_by_dim(luc)
-  colnames(luc)<-c("F","F","F","F","F","F")
+  colnames(luc)<-c("F","F","F","F","F","F","pro")
   write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = TRUE)
 }
 
-# ####################################################################################
-# #FAKE SALARIES :: JUST IN CASE!
-# fake_sal <- read.csv(file=paste(local_path,"card_form",".csv"), header=TRUE, sep=",")
-# fake_sal <- fake_sal[,15]
-# fake_sal <- fake_sal[complete.cases(fake_sal)]
-# pool_entry<-cbind(pool_entry,fake_sal)
 
+###########################################################################
+########MAKE THIS ALL A FUNCTION TO RUN IN A LOOP ON A CARD FOLDER#########
+#################       ABOVE                                 #############
+###########################################################################
 
+##########MIGHT WANT TO MAKE A 'CONTROLLER' AT THIS POINT...
 
-
-
-
-
-
+#################################################################################
+###########################     FINISH!     #####################################
+#################################################################################
 
 
 

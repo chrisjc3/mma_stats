@@ -1,0 +1,25 @@
+{
+    "contents" : "",
+    "created" : 1475203883487.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "8B155486",
+    "lastKnownWriteTime" : 30399714103066735,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "cacheKey" : "hbke9kbh52",
+        "caption" : "total_combos",
+        "contentUrl" : "grid_resource/gridviewer.html?env=&obj=total_combos&cache_key=hbke9kbh52",
+        "displayedObservations" : 8,
+        "environment" : "",
+        "object" : "total_combos",
+        "totalObservations" : 8,
+        "variables" : 29
+    },
+    "relative_order" : 5,
+    "source_on_save" : false,
+    "type" : "r_dataframe"
+}
