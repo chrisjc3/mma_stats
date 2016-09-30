@@ -174,16 +174,14 @@ if(is.null(lu_check)==TRUE){
 #################################################################################
 
 
-
-
-
-
-
-
-
-
-
-
+# ##############################################################################################
+# DEV: 
+#  1) Make global_controller
+#    ->refresh functions with options to turn off parts (default to true)
+#    ->function: append salary & output sbs card must be combined
+#    ->function to import card for and write DK_LINE
+#        ->make this act on a loop in a folder to save and run multiple cards easily
+# ##############################################################################################
 
 
 
