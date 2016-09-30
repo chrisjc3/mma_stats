@@ -38,7 +38,24 @@ refresh_mma_data<-function(r_events=TRUE, r_evtdist=150, r_odds=TRUE){
   ##############      GENERATE UPCOMING CARD     #############
   ############################################################
   #get upcoming event card
-  card<-pull_upcoming_fighters()
+  fight<-read_html(as.character(up_events[1]))
+  event<- fight %>%
+    html_nodes("td p") %>%
+    html_text()
+  
+  hld<-NULL;name<-NULL;weight<-NULL;against<-NULL;
+  for(i in seq(1,length(event),10)){
+    name[1] <- toupper(str_trim(event[i+2]))
+    name[2] <- toupper(str_trim(event[i+3]))
+    against[1] <- str_trim(event[i+3])
+    against[2] <- str_trim(event[i+2])
+    weight[1] <- str_trim(event[i+5])
+    weight[2] <- str_trim(event[i+5])
+    hldrow<-cbind(name,against,weight)
+    hld<-rbind(hld,hldrow)
+  }
+  card<-hld
+
   # save table for each fighter
   for(i in seq(1,length(card[,2]),1)){
     fighter<-get_fighter_fights(card[i])
@@ -60,14 +77,16 @@ refresh_mma_data<-function(r_events=TRUE, r_evtdist=150, r_odds=TRUE){
 
 
 
-write_sbs_card<-function(){
+write_sbs_card<-function(x,y,z){
   #################################################################################
   ###########################     MANIPULATION     ################################
   #################################################################################
-  
+  odds <- x
+  car <- y
+  salaries <- z
   #http://www.gamblerspalace.com/lines/martial-arts/ -> fightmetrics 
   #IF ERRORS FIRE ADD N/A NAMING CONVERSION TO FUNCTION
-  odds <- read.csv(file=paste(local_path,"odds",".csv"), header=TRUE, sep=",")
+
   odds<-fix_odds_names(odds)
   
   #merge odds to upcoming card & add stats 
@@ -79,11 +98,21 @@ write_sbs_card<-function(){
   #################################################################################
   ############     INSERT DRAFT KINGS SALARIES     ################################
   #################################################################################
-  
-  salaries <- read.csv(file=paste0(local_path,"DKSalaries",".csv"), header=TRUE, sep=",")
+
   salaries <-salaries[,2:3]
   salaries[,1] <-toupper(salaries[,1])
-  up_card<-append_dk_salary(up_card,salaries)
+  hldrow<-NULL;hld<-NULL;salary<-NULL;
+  for(i in seq(1,length(up_card[,1]),1)){
+    name<-as.character(up_card[i,1])
+    for(k in seq(1,length(salaries[,1]),1)){
+      if(as.character(salaries[k,1])==name){
+        salary<-as.character(salaries[k,2])
+      }
+    } 
+    hldrow<-cbind(up_card[i,], salary)
+    hld<-rbind(hld,hldrow)
+  }  
+  up_card<-hld
   
   #make export/import card#
   sbs_up_card<-create_fights_view(up_card)
@@ -95,13 +124,13 @@ write_sbs_card<-function(){
   #################################################################################
   ###########################     OUTPUT FORM     #################################
   #################################################################################
-  write.csv(sbs_up_card, file=paste(local_path,"output\\card_form",".csv"), row.names=FALSE)
+  write.csv(sbs_up_card, file=paste0(local_path,"output\\card_form",".csv"), row.names=FALSE)
 }
 
 
 
 
-generate_lu_off_card<-function(x,y){
+generate_lu_off_card<-function(x,y,z){
   #################################################################################
   ###########################         INPUT FORMS             #####################
   ########################### 1) card_form.csv w/ POOL entry  #####################
@@ -113,6 +142,9 @@ generate_lu_off_card<-function(x,y){
   ########MAKE THIS ALL A FUNCTION TO RUN IN A LOOP ON A CARD FOLDER#########
   #################       BELOW                                 #############
   ###########################################################################
+#    x<-read.csv(file=paste0(local_path,"cards\\","c2.csv"), header=TRUE, sep=",")
+#    y<-dk1
+#    z<-dk2
   pool_entry <- x
   pool_entry <- pool_entry[,15:16] 
   pool_entry <- pool_entry[complete.cases(pool_entry),]
@@ -123,17 +155,117 @@ generate_lu_off_card<-function(x,y){
   salaries <-salaries[complete.cases(salaries),]
   salaries[,2] <-toupper(salaries[,2])
   
-  pool_f<-append_dk_salary(pool_entry,salaries)
-  
-  total_combos<-get_all_lineups_v3(pool_f) #STILL NEEDS TO BE SMARTER
-  # -> Should take full pool and automatically not place dual combatants
-  
-  ids <- y
+  ids <- z
   ids <-ids[,1:2]
   ids[ids==""]<-NA
   ids <-ids[complete.cases(ids),]
   ids[,2] <-toupper(ids[,2])
+ 
   
-  dk_lineups<-format_to_dk(total_combos, ids)
-  return(dk_lineups)
+  x<-pool_entry
+  y<-salaries
+  hldrow<-NULL;hld<-NULL;
+  for(i in seq(1,length(x[,1]),1)){
+    name<-as.character(x[i,1])
+    for(k in seq(1,length(y[,1]),1)){
+      if(as.character(y[k,2])==name){
+        salary<-as.character(y[k,3])
+      }
+    } 
+    hldrow<-cbind(x[i,], salary)
+    hld<-rbind(hld,hldrow)
+  }  
+  
+  pool_f<-hld
+  
+  #ALL POSSIBLE COMBOS GIVEN ENTRY
+  #SUMS PROJECTION AND SALARY (FROM ENTRY)
+  x <- pool_f
+  hld<-combn(x[,1],6)
+  hld<-as.data.frame(hld)
+  hldrow1<-NULL;hldrow2<-NULL;
+  for(i in seq(1,length(colnames(hld)),1)){
+    score<-0
+    salary<-0
+    for(j in seq(1,length(hld[,1]),1)){
+      name <- hld[j,i]
+      for(k in seq(1,length(x[,1]),1)){
+        if(as.character(x[k,1]) == as.character(name)){
+          score<-score + as.numeric(as.character(x[k,2]))
+          salary<-salary + as.numeric(as.character(x[k,3]))
+        }
+      }
+    }
+    hldrow1<-cbind(hldrow1,as.character(score));hldrow2<-cbind(hldrow2,as.character(salary))
+  }
+  colnames(hldrow1)<-colnames(hld);colnames(hldrow2)<-colnames(hld)
+  hld<-rbind(hld,hldrow1,hldrow2)
+  
+  #CUTTING OVER L/U LIMIT / UNDER MEAN POINT VALUE
+  hldf<-NULL
+  for(i in seq(1,length(colnames(hld)),1)){
+    if(as.numeric(as.character(hld[8,i])) <= 50000 & as.numeric(as.character(hld[8,i])) >= 47000){
+      if(is.null(hldf)==TRUE){
+        hldf<-as.vector(hld[,i])
+      } else {
+        hldf<-cbind(hldf, as.vector(hld[,i]))
+      }
+    }
+  }
+
+  if(is.null(hldf) == FALSE){
+    
+    total_combos<-hldf
+  
+    x<-total_combos
+    y<-ids
+    hld<-NULL
+    for(i in seq(1,length(x[1,]),1)){
+      hldrow<-c(x[1,i],x[2,i],x[3,i],x[4,i],x[5,i],x[6,i],x[7,i])
+      hld<-rbind(hld,hldrow)
+    }
+    
+    dklus<-NULL;hr<-NULL;
+    for(k in seq(1,length(hld[,1]),1)){
+      for(i in seq(1,length(hld[1,]),1)){
+        name<-as.character(hld[k,i])
+        for(j in seq(1,length(y[,1]),1)){
+          if(as.character(y[j,2])==name){
+            if(is.null(hr)==FALSE){hr<-cbind(hr, as.character(y[j,1]))}
+            else {hr<-as.character(y[j,1]);}
+          }
+        }
+      }
+      hr<-cbind(hr,as.character(hld[k,7]))
+      dklus<-rbind(dklus,hr)
+      hr<-NULL
+    }
+    colnames(dklus)<-c("F","F","F","F","F","F","pro")
+    rownames(dklus)<-c(seq(1,length(dklus[,1]),1))
+    dk_lineups<-dklus
+    
+    return(dk_lineups)
+  }
 }
+
+
+check_diff_ooo_by_dim<-function(x){
+  skip<-FALSE;hldfinal<-NULL;
+  for(i in seq(1,length(as.character(x[,1])),1)){
+    for(j in i+1:length(as.character(x[,1]))){
+      if(!isTRUE(skip)){
+        skip<-compareIgnoreAttrs(x[i,1:5],x[j,1:5])
+      }
+    }
+    if(!isTRUE(skip)){
+      if(is.null(hldfinal)==TRUE){
+        hldfinal<-x[i,]
+      }else{
+        hldfinal<-rbind(hldfinal,x[i,])
+      }
+    }
+    skip<-FALSE
+  }
+  return(hldfinal)
+}
+
