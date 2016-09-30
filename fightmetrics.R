@@ -152,7 +152,8 @@ if(is.null(lu_check)==TRUE){
   write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE, append=TRUE)
   luc<-read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=",")
   luc<-check_diff_ooo_by_dim(luc)
-  write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE)
+  colnames(luc)<-c("F","F","F","F","F","F")
+  write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = TRUE)
 }
 
 # ####################################################################################
