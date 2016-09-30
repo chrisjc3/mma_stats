@@ -42,6 +42,7 @@ write_sbs_card(odds,card,dk1)#WRITE AND SAVE CARDS OFF TEMPLATE TO cards\\
 ###########################     LOAD CARDS in cards\\     #######################
 #################################################################################
 crdlst <- list.files(paste0(local_path,"\\cards"))
+
 for(i in seq(1,length(crdlst),1)){
   crd <- crdlst[i]
   card_ent<-read.csv(file=paste0(local_path,"cards\\",crd), header=TRUE, sep=",")
@@ -54,20 +55,17 @@ for(i in seq(1,length(crdlst),1)){
   
   lu_check <- try(read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=","));
   
-  if(class(lu_check) == "try-error" & is.null(dk_lineups)==FALSE ){
+  if(class(lu_check) == "try-error" & is.null(dk_lineups)==FALSE){
     write.csv(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), row.names=FALSE)
     print("FIRST PRINT SUCCESS!")
-  } else{
-    #WriteAppend/De-Dupe/Write#
-    write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = FALSE, append=TRUE)
-    length(luc)
+  } else if(class(lu_check) == "try-error" & is.null(dk_lineups)==TRUE){
+    next
+  }
+    write.table(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names=FALSE,append=TRUE)
     luc<-read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=",")
     luc<-check_diff_ooo_by_dim(luc)
     colnames(luc)<-c("F","F","F","F","F","F","pro")
-    write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names = TRUE)
+    write.table(luc, file=paste0(local_path,"output\\DK_LINE",".csv"), sep=",", row.names=FALSE,col.names=TRUE)
     print(paste0(as.character(i)," PRINT SUCCESS!"))
-  }
-  
-  
 }
 
