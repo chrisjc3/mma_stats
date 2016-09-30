@@ -142,9 +142,6 @@ generate_lu_off_card<-function(x,y,z){
   ########MAKE THIS ALL A FUNCTION TO RUN IN A LOOP ON A CARD FOLDER#########
   #################       BELOW                                 #############
   ###########################################################################
-#    x<-read.csv(file=paste0(local_path,"cards\\","c2.csv"), header=TRUE, sep=",")
-#    y<-dk1
-#    z<-dk2
   pool_entry <- x
   pool_entry <- pool_entry[,15:16] 
   pool_entry <- pool_entry[complete.cases(pool_entry),]

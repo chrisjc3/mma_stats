@@ -21,7 +21,6 @@ fighter_table <- read.csv(file=paste(local_path,"master_fighter_table",".csv"), 
 card <- read.csv(file=paste(local_path,"up_card",".csv"), header=TRUE, sep=",")
 odds <- read.csv(file=paste(local_path,"odds",".csv"), header=TRUE, sep=",")
 
-
 ###SHOULD PROBABLY PATCH THIS...
 # FOR SALARIES -- GENERATE FROM DRAFTKINGS (GAME -> EXPORT) #
 dk1 <- read.csv(file=paste0(local_path,"DKSalaries",".csv"), header=TRUE, sep=",")
@@ -37,7 +36,6 @@ dk2 <- read.csv(file=paste0(local_path,"output\\DKSalaries",".csv"), header=TRUE
 write_sbs_card(odds,card,dk1)#WRITE AND SAVE CARDS OFF TEMPLATE TO cards\\
 #RETURNS NOTHING...MANUALLY PICK FIGHTERS AND SAVE CARDS FROM HERE#
 
-
 #################################################################################
 ###########################     LOAD CARDS in cards\\     #######################
 #################################################################################
@@ -52,9 +50,7 @@ for(i in seq(1,length(crdlst),1)){
   #####################################################
   ##################  WRITE OUTPUT  ###################
   #####################################################
-  
   lu_check <- try(read.csv(file=paste0(local_path,"output\\DK_LINE",".csv"), header=TRUE, sep=","));
-  
   if(class(lu_check) == "try-error" & is.null(dk_lineups)==FALSE){
     write.csv(dk_lineups, file=paste0(local_path,"output\\DK_LINE",".csv"), row.names=FALSE)
     print("FIRST PRINT SUCCESS!")
