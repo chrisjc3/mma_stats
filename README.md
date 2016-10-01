@@ -5,3 +5,5 @@ Pulls MMA stats and makes lineups based on dk salaries and manually input projec
 Meant to run interactively.
 
 Only .R scripts and data folder layout necessary. Wrote in RStudio.
+
+Clone & make directory /data/ with /output/ & /cards/ subdirectories 
