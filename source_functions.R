@@ -81,6 +81,10 @@ write_sbs_card<-function(x,y,z){
   #################################################################################
   ###########################     MANIPULATION     ################################
   #################################################################################
+  #write_sbs_card(odds,card,dk1)
+  
+  # x<-odds;y<-card;z<-dk2  
+  
   odds <- x
   car <- y
   salaries <- z
@@ -99,8 +103,12 @@ write_sbs_card<-function(x,y,z){
   ############     INSERT DRAFT KINGS SALARIES     ################################
   #################################################################################
 
-  salaries <-salaries[,2:3]
+  salaries <- cbind(as.character(salaries[,2]),as.character(salaries[,4]))
+  salaries[salaries==""]<-NA
+  salaries <-salaries[complete.cases(salaries),]
   salaries[,1] <-toupper(salaries[,1])
+  
+  
   hldrow<-NULL;hld<-NULL;salary<-NULL;
   for(i in seq(1,length(up_card[,1]),1)){
     name<-as.character(up_card[i,1])
@@ -116,8 +124,18 @@ write_sbs_card<-function(x,y,z){
   
   #make export/import card#
   sbs_up_card<-create_fights_view(up_card)
-  sbs_up_card<-cbind(sbs_up_card, "", "")
-  colnames(sbs_up_card)<-c(colnames(sbs_up_card[1:14]),"pool","proj")
+  
+  
+  #assign matchup_key
+  hldrow<-NULL;hld<-NULL;
+  for(i in seq(1,length(sbs_up_card[,1]),1)){
+    hldrow<-cbind(i, sbs_up_card[i,])
+    hld<-rbind(hld,hldrow)
+  }  
+  
+  sbs_up_card<-hld
+  sbs_up_card<-cbind(sbs_up_card, "", "","")
+  colnames(sbs_up_card)<-c("matchup_key",colnames(sbs_up_card[2:15]),"matchup_key","pool","proj")
   
   #up_card = vertical data 
   #sbs_up_card = horizontal data
@@ -130,7 +148,7 @@ write_sbs_card<-function(x,y,z){
 
 
 
-generate_lu_off_card<-function(x,y,z){
+generate_lu_off_card<-function(x,z){
   #################################################################################
   ###########################         INPUT FORMS             #####################
   ########################### 1) card_form.csv w/ POOL entry  #####################
@@ -142,15 +160,19 @@ generate_lu_off_card<-function(x,y,z){
   ########MAKE THIS ALL A FUNCTION TO RUN IN A LOOP ON A CARD FOLDER#########
   #################       BELOW                                 #############
   ###########################################################################
+  
+  # generate_lu_off_card(card_ent, dk1,dk2)
+  # x<-card_ent;z<-dk2;
+  
   pool_entry <- x
-  pool_entry <- pool_entry[,15:16] 
+  pool_entry <- pool_entry[,16:18]
   pool_entry <- pool_entry[complete.cases(pool_entry),]
   
-  salaries <- y
-  salaries <-salaries[,1:4]
+  salaries <- z
+  salaries <- cbind(as.character(salaries[,2]),as.character(salaries[,4]))
   salaries[salaries==""]<-NA
   salaries <-salaries[complete.cases(salaries),]
-  salaries[,2] <-toupper(salaries[,2])
+  salaries[,1] <-toupper(salaries[,1])
   
   ids <- z
   ids <-ids[,1:2]
@@ -158,15 +180,14 @@ generate_lu_off_card<-function(x,y,z){
   ids <-ids[complete.cases(ids),]
   ids[,2] <-toupper(ids[,2])
  
-  
   x<-pool_entry
   y<-salaries
   hldrow<-NULL;hld<-NULL;
   for(i in seq(1,length(x[,1]),1)){
-    name<-as.character(x[i,1])
+    name<-as.character(x[i,2])
     for(k in seq(1,length(y[,1]),1)){
-      if(as.character(y[k,2])==name){
-        salary<-as.character(y[k,3])
+      if(as.character(y[k,1])==name){
+        salary<-as.character(y[k,2])
       }
     } 
     hldrow<-cbind(x[i,], salary)
@@ -178,18 +199,53 @@ generate_lu_off_card<-function(x,y,z){
   #ALL POSSIBLE COMBOS GIVEN ENTRY
   #SUMS PROJECTION AND SALARY (FROM ENTRY)
   x <- pool_f
-  hld<-combn(x[,1],6)
+  new_name<-paste0(x[,1],"//",x[,2])
+  x<-cbind(new_name, x[,3:4])
+  hld<-combn(as.character(x[,1]),6)
   hld<-as.data.frame(hld)
-  hldrow1<-NULL;hldrow2<-NULL;
+
+  
+  #CUT AGAINST MATCHUPS IN SAME CARD
+  skip<-FALSE; hld2<-NULL;
+  for(k in seq(1,length(colnames(hld)),1)){
+    for(i in seq(1,length(1:5),1)){
+      mkey<-as.matrix(unlist(str_split(hld[i,k], "//")))[1,]
+      for(j in seq(i+1,6,1)){
+        mkey2<-as.matrix(unlist(str_split(hld[j,k], "//")))[1,]          
+        if(mkey==mkey2){
+          skip<-TRUE;break;
+        }
+      }
+      if(isTRUE(skip)==TRUE){break}
+    }
+    if(!isTRUE(skip)==TRUE){
+      if(is.null(hld2)==TRUE){
+        hld2<-as.character(hld[,k])  
+      } else {
+        hld2<-cbind(hld2,as.character(hld[,k]))
+      }
+    }
+    skip<-FALSE
+  }
+  
+  #RESET NAME
+  for(i in seq(1,length(hld2[,1]),1)){
+    for(j in seq(1,length(hld2[1,]),1)){
+      hld2[i,j]<-as.matrix(unlist(str_split(hld2[i,j], "//")))[2,]          
+    }
+  }
+  
+  #add salary/proj
+  hld<-hld2;hldrow1<-NULL;hldrow2<-NULL;
   for(i in seq(1,length(colnames(hld)),1)){
     score<-0
     salary<-0
     for(j in seq(1,length(hld[,1]),1)){
       name <- hld[j,i]
-      for(k in seq(1,length(x[,1]),1)){
-        if(as.character(x[k,1]) == as.character(name)){
-          score<-score + as.numeric(as.character(x[k,2]))
-          salary<-salary + as.numeric(as.character(x[k,3]))
+      for(k in seq(1,length(pool_f[,1]),1)){
+        if(as.character(pool_f[k,2]) == as.character(name)){
+          score<-score + as.numeric(as.character(pool_f[k,3]))
+          salary<-salary + as.numeric(as.character(pool_f[k,4]))
         }
       }
     }
@@ -198,7 +254,8 @@ generate_lu_off_card<-function(x,y,z){
   colnames(hldrow1)<-colnames(hld);colnames(hldrow2)<-colnames(hld)
   hld<-rbind(hld,hldrow1,hldrow2)
   
-  #CUTTING OVER L/U LIMIT / UNDER MEAN POINT VALUE
+  
+  #CUTTING OVER SALARY LIMIT
   hldf<-NULL
   for(i in seq(1,length(colnames(hld)),1)){
     if(as.numeric(as.character(hld[8,i])) <= 50000){
@@ -209,6 +266,7 @@ generate_lu_off_card<-function(x,y,z){
       }
     }
   }
+  
 
   if(is.null(hldf) == FALSE){
     
@@ -239,30 +297,10 @@ generate_lu_off_card<-function(x,y,z){
     }
     colnames(dklus)<-c("F","F","F","F","F","F","pro")
     rownames(dklus)<-c(seq(1,length(dklus[,1]),1))
-    dk_lineups<-dklus
+
     
-    return(dk_lineups)
+    return(dklus)
   }
-}
-
-
-check_diff_ooo_by_dim<-function(x){
-  skip<-FALSE;hldfinal<-NULL;
-  for(i in seq(1,length(as.character(x[,1])),1)){
-    for(j in i+1:length(as.character(x[,1]))){
-      if(!isTRUE(skip)){
-        skip<-compareIgnoreAttrs(x[i,1:5],x[j,1:5])
-      }
-    }
-    if(!isTRUE(skip)){
-      if(is.null(hldfinal)==TRUE){
-        hldfinal<-x[i,]
-      }else{
-        hldfinal<-rbind(hldfinal,x[i,])
-      }
-    }
-    skip<-FALSE
-  }
-  return(hldfinal)
+  
 }
 
