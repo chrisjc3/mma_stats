@@ -201,7 +201,7 @@ generate_lu_off_card<-function(x,y,z){
   #CUTTING OVER L/U LIMIT / UNDER MEAN POINT VALUE
   hldf<-NULL
   for(i in seq(1,length(colnames(hld)),1)){
-    if(as.numeric(as.character(hld[8,i])) <= 50000 & as.numeric(as.character(hld[8,i])) >= 47000){
+    if(as.numeric(as.character(hld[8,i])) <= 50000){
       if(is.null(hldf)==TRUE){
         hldf<-as.vector(hld[,i])
       } else {
